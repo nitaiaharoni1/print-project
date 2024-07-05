@@ -10,10 +10,9 @@
       "ES2016",
       "DOM"
     ]
-    // Add the "lib" option with "ES2016" and any other required libraries
   },
   "include": [
-    "src"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules"

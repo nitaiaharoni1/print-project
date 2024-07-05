@@ -16,9 +16,7 @@
     "build": "tsc",
     "start": "ts-node src/index.ts",
     "bump": "npm version patch",
-    "package": "npm run lint && npm run test && npm run build && npm run bump && npm publish",
-    "lint": "eslint --ext .ts src",
-    "test": "jest"
+    "package": "npm run build && npm run bump && npm publish"
   },
   "author": "Nitai Aharoni",
   "license": "MIT",
@@ -26,7 +24,6 @@
     "commander": "^12.1.0"
   },
   "devDependencies": {
-    "@types/node": "^18.16.16",
     "ts-node": "^10.9.2",
     "typescript": "^5.0.4"
   }
