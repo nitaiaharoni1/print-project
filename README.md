@@ -1,97 +1,72 @@
-# AnonymizeNLP
+# Print-Project
 
-Anonymize-NLP is a lightweight and robust package for text anonymization. It uses Natural Language Processing (NLP) and Regular Expressions (Regex) to identify and mask sensitive information in a string.
-
-## Features
-
-- Anonymize specific categories in a text, including emails, monetary values, organizations, people, and phone numbers and more.
-- Customizable anonymization: Specify which categories to anonymize and which to exclude.
-- De-anonymization: Revert anonymized text back to its original form.
-- Built-in compatibility with nlp NER - compromise.
+The `print-project` command-line tool scans a specified directory and generates a report including the tree structure and content of files that do not match given ignore patterns. It is useful for documenting or analyzing the file layout of projects, especially in development environments.
 
 ## Installation
 
-Install Anonymize-NLP and its peer dependencies with npm.
+You can install `print-project` using npm:
 
 ```bash
-npm i anonymize-nlp
+npm install -g print-project
 ```
+
+Ensure you have Node.js installed on your machine to use this package.
 
 ## Usage
 
-```javascript
-import { AnonymizeNlp } from 'anonymizenlp';
+After installation, the `print-project` tool can be run from the command line.
 
-const anonymizer = new AnonymizeNlp();
-const anonymizedText = anonymizer.anonymize(`Hi I'm John Doe, my email is john@example.com and my phone number is +1-234-567-8900.`);
+### Basic Command
 
-console.log(anonymizedText);
-// Output: "Hi I'm <FIRSTNAME> <LASTNAME>, my email is <EMAIL> and my phone number is <PHONENUMBER>."
-
-const originalText = anonymizer.deAnonymize(anonymizedText);
-console.log(originalText);
-// Output: "Hi I'm John Doe, my email is john@example.com and my phone number is +1-234-567-8900."
+```bash
+print-project <startPath> [ignorePatterns]
 ```
 
-## API
+- `<startPath>`: Required. The path to the directory you want to scan.
+- `[ignorePatterns]`: Optional. A comma-separated list of glob patterns to ignore files and directories.
 
-### Create a new AnonymizeNlp instance. 
-By default, all types are anonymized.
+### Examples
 
-`constructor(typesToAnonymize: AnonymizeType[] = anonymizeTypeOptions, typesToExclude: AnonymizeType[] = [])`
+- **Print all files and directories**:
 
+  ```bash
+  print-project /path/to/project
+  ```
 
-- `typesToAnonymize`: Array of `AnonymizeType` that you want to anonymize in the text.
-- `typesToExclude`: Array of `AnonymizeType` that you want to exclude from anonymization.
+- **Ignore specific patterns**:
 
-```typescript
-type AnonymizeType =
-  | 'date'
-  | 'email'
-  | 'firstname'
-  | 'lastname'
-  | 'money'
-  | 'organization'
-  | 'phonenumber'
-  | 'time'
-  | 'creditcard'
-  | 'domain'
-  | 'ip'
-  | 'token'
-  | 'url'
-  | 'id'
-  | 'zip_code'
-  | 'crypto'
-  | 'apikey';
-```
+  ```bash
+  print-project /path/to/project node_modules,*.log
+  ```
 
-### anonymize(input: string): string
+This will ignore all directories and files matching the `node_modules` folder and any files ending with `.log`.
 
-Anonymizes the specified categories in the given text.
+## Features
 
-- `input`: The text to be anonymized.
+- **Directory Scanning**: Recursively scans the provided directory path.
+- **Ignore Patterns**: Supports glob patterns to exclude specific files or directories from the output.
+- **Output Generation**: Creates a text file `project-print.txt` in the current working directory containing:
+  - The structured list of non-ignored files and directories.
+  - The content of non-empty files.
 
-### deAnonymize(input: string): string
+## How It Works
 
-Reverts the anonymized text back to its original form.
+1. Parses the command line arguments for the starting directory path and ignore patterns.
+2. Scans the specified directory, applying the ignore patterns to filter out unwanted files or directories.
+3. Builds a tree structure of the directory and captures file content.
+4. Outputs the directory structure and file content into `project-print.txt`.
 
-- `input`: The anonymized text.
+## Output File Format
 
-## Contributing
+The output `project-print.txt` includes:
 
-Contributions to this project are welcome! If you would like to contribute, please follow these steps:
-
-1. Fork the repository on GitHub.
-2. Clone your fork to your local machine.
-3. Create a new branch for your changes.
-4. Make your changes and commit them to your branch.
-5. Push your changes to your fork on GitHub.
-6. Open a pull request from your branch to the main repository.
-
-Please ensure that your code follows the project's coding style and that all tests pass before submitting a pull request. If you find any bugs or have suggestions for improvements, feel free to open an issue on GitHub.
+- **File Structure**: A tree showing the organization of files and directories.
+- **Project Print**: Actual content of non-empty files within the project directory.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for the full license text.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-Copyright (c) 2023. All rights reserved.
+## Contributing
+
+Contributions are welcome. Please open an issue first to discuss what you would like to change, or directly submit a pull request.
