@@ -1,0 +1,471 @@
+File structure:
+.eslintrc.json
+.idea
+.npmignore
+LICENSE
+README.md
+dist
+jest.config.js
+node_modules
+package.json
+src
+  src/index.ts
+tsconfig.json
+
+
+Project print:
+.eslintrc.json:
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "build/",
+    "coverage/",
+    "public/"
+  ],
+  "extends": [
+    "standard-with-typescript",
+    "eslint:all",
+    "prettier",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
+  ],
+  "plugins": [
+    "prettier",
+    "sort-keys-fix",
+    "sort-imports-es6-autofix"
+  ],
+  "rules": {
+    "line-comment-position": "off",
+    "import/no-unresolved": "off",
+    "no-return-await": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "no-continue": "off",
+    "max-params": [
+      "error",
+      4
+    ],
+    "no-underscore-dangle": "off",
+    "init-declarations": "off",
+    "sort-keys-fix/sort-keys-fix": "error",
+    "no-inline-comments": "off",
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "debug",
+          "warn",
+          "error"
+        ]
+      }
+    ],
+    "no-undefined": "off",
+    "no-undef": "off",
+    "@typescript-eslint/no-this-alias": "off",
+    "func-names": "off",
+    "consistent-this": "off",
+    "no-invalid-this": "off",
+    "prefer-named-capture-group": "off",
+    "@typescript-eslint/no-confusing-void-expression": "off",
+    "@typescript-eslint/await-thenable": "off",
+    "@typescript-eslint/no-misused-promises": "off",
+    "sort-imports": "off",
+    "no-magic-numbers": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "no-ternary": "off",
+    "max-statements": [
+      "error",
+      50
+    ],
+    "id-length": "off",
+    "sort-imports-es6-autofix/sort-imports-es6": [
+      2,
+      {
+        "ignoreCase": false,
+        "ignoreMemberSort": false,
+        "memberSyntaxSortOrder": [
+          "none",
+          "all",
+          "multiple",
+          "single"
+        ]
+      }
+    ],
+    "no-shadow": "off",
+    "no-param-reassign": "off",
+    "no-nested-ternary": "off",
+    "guard-for-in": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/consistent-type-imports": "off",
+    "class-methods-use-this": "off",
+    "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/strict-boolean-expressions": "off",
+    "@typescript-eslint/restrict-plus-operands": "off",
+    "multiline-comment-style": "off",
+    "require-jsdoc": "off",
+    "no-warning-comments": "off",
+    "capitalized-comments": "off",
+    "func-style": "off",
+    "max-lines-per-function": [
+      "error",
+      {
+        "max": 100,
+        "skipBlankLines": true,
+        "skipComments": true
+      }
+    ],
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true,
+        "printWidth": 180,
+        "trailingComma": "all",
+        "bracketSpacing": true,
+        "bracketSameLine": true,
+        "quoteProps": "as-needed",
+        "jsxSingleQuote": true,
+        "jsxBracketSameLine": false,
+        "jsxBracketSpacing": true
+      }
+    ],
+    "no-use-before-define": "off"
+  }
+}
+
+
+.npmignore:
+# .npmignore
+
+# Ignore the node_modules directory
+node_modules/
+
+# Ignore the build and dist directories
+build/
+dist/
+
+# Ignore any .log files
+*.log
+
+# Ignore any .env files
+*.env
+
+# Ignore any .DS_Store files (macOS metadata)
+.DS_Store
+
+# Ignore the .git directory
+.git/
+
+# Ignore the .gitignore file
+.gitignore
+
+# Ignore any editor configuration files
+.editorconfig
+.vscode/
+
+# Ignore any test files and directories
+test/
+__tests__/
+
+# Ignore any documentation files
+docs/
+README.md
+LICENSE
+
+
+LICENSE:
+The MIT License (MIT)
+
+Copyright (c) 2023 Nitai Aharoni
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+README.md:
+# AnonymizeNLP
+
+Anonymize-NLP is a lightweight and robust package for text anonymization. It uses Natural Language Processing (NLP) and Regular Expressions (Regex) to identify and mask sensitive information in a string.
+
+## Features
+
+- Anonymize specific categories in a text, including emails, monetary values, organizations, people, and phone numbers and more.
+- Customizable anonymization: Specify which categories to anonymize and which to exclude.
+- De-anonymization: Revert anonymized text back to its original form.
+- Built-in compatibility with nlp NER - compromise.
+
+## Installation
+
+Install Anonymize-NLP and its peer dependencies with npm.
+
+```bash
+npm i anonymize-nlp
+```
+
+## Usage
+
+```javascript
+import { AnonymizeNlp } from 'anonymizenlp';
+
+const anonymizer = new AnonymizeNlp();
+const anonymizedText = anonymizer.anonymize(`Hi I'm John Doe, my email is john@example.com and my phone number is +1-234-567-8900.`);
+
+console.log(anonymizedText);
+// Output: "Hi I'm <FIRSTNAME> <LASTNAME>, my email is <EMAIL> and my phone number is <PHONENUMBER>."
+
+const originalText = anonymizer.deAnonymize(anonymizedText);
+console.log(originalText);
+// Output: "Hi I'm John Doe, my email is john@example.com and my phone number is +1-234-567-8900."
+```
+
+## API
+
+### Create a new AnonymizeNlp instance. 
+By default, all types are anonymized.
+
+`constructor(typesToAnonymize: AnonymizeType[] = anonymizeTypeOptions, typesToExclude: AnonymizeType[] = [])`
+
+
+- `typesToAnonymize`: Array of `AnonymizeType` that you want to anonymize in the text.
+- `typesToExclude`: Array of `AnonymizeType` that you want to exclude from anonymization.
+
+```typescript
+type AnonymizeType =
+  | 'date'
+  | 'email'
+  | 'firstname'
+  | 'lastname'
+  | 'money'
+  | 'organization'
+  | 'phonenumber'
+  | 'time'
+  | 'creditcard'
+  | 'domain'
+  | 'ip'
+  | 'token'
+  | 'url'
+  | 'id'
+  | 'zip_code'
+  | 'crypto'
+  | 'apikey';
+```
+
+### anonymize(input: string): string
+
+Anonymizes the specified categories in the given text.
+
+- `input`: The text to be anonymized.
+
+### deAnonymize(input: string): string
+
+Reverts the anonymized text back to its original form.
+
+- `input`: The anonymized text.
+
+## Contributing
+
+Contributions to this project are welcome! If you would like to contribute, please follow these steps:
+
+1. Fork the repository on GitHub.
+2. Clone your fork to your local machine.
+3. Create a new branch for your changes.
+4. Make your changes and commit them to your branch.
+5. Push your changes to your fork on GitHub.
+6. Open a pull request from your branch to the main repository.
+
+Please ensure that your code follows the project's coding style and that all tests pass before submitting a pull request. If you find any bugs or have suggestions for improvements, feel free to open an issue on GitHub.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for the full license text.
+
+Copyright (c) 2023. All rights reserved.
+
+
+jest.config.js:
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+};
+
+
+package.json:
+{
+  "name": "print-project",
+  "version": "1.0.0",
+  "description": "A simple CLI tool to print the project tree structure and file contents",
+  "main": "dist/index.js",
+  "bin": {
+    "print-project": "./dist/index.js"
+  },
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nitaiaharoni1/print-project.git"
+  },
+  "keywords": [],
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "bump": "npm version patch",
+    "package": "npm run lint && npm run test && npm run build && npm run bump && npm publish",
+    "lint": "eslint --ext .ts src",
+    "test": "jest"
+  },
+  "author": "Nitai Aharoni",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.16",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.4"
+  }
+}
+
+
+src/index.ts:
+#!/usr/bin/env node
+
+import * as fs from 'fs';
+import * as path from 'path';
+import { Command } from 'commander';
+
+let projectPrint: string = '';
+let treeStructure: Record<string, any> = {};
+let treeStructureString: string = '';
+
+const program = new Command();
+
+program
+  .argument('<startPath>', 'Starting directory path')
+  .argument('[ignorePatterns]', 'Comma-separated list of patterns to ignore')
+  .parse(process.argv);
+
+const startPath: string | undefined = program.args[0] && path.resolve(program.args[0]);
+const patterns: string[] = program.args[1] ? program.args[1].split(',').filter(Boolean).map(pattern => pattern.trim()) : [];
+
+console.log('Start Path:', startPath);
+console.log('Patterns:', patterns);
+
+
+function isIgnored(filePath: string, patterns: string[]): boolean {
+  try {
+    return patterns.some(pattern => {
+      const parsedPattern = pattern.replace(/\./g, '\\.').replace(/\*/g, '.*');
+      const regex = new RegExp(parsedPattern);
+      return regex.test(filePath);
+    });
+  } catch (e) {
+    console.error(`Failed to check if ignored: ${filePath}`, e);
+    return false;
+  }
+}
+
+function readDirectory(dirPath: string, patterns: string[] = [], treeStructure: Record<string, any> = {}, currentPath: string = ''): void {
+  try {
+    const dirents = fs.readdirSync(dirPath, { withFileTypes: true });
+    dirents.forEach((dirent) => {
+      const fullPath = path.relative(process.cwd(), path.join(dirPath, dirent.name)).replace(/\\/g, '/');
+      if (isIgnored(fullPath, patterns)) {
+        return;
+      }
+      const relativePath = path.join(currentPath, dirent.name).replace(/\\/g, '/');
+      if (dirent.isDirectory()) {
+        treeStructure[relativePath] = {};
+        readDirectory(path.join(dirPath, dirent.name), patterns, treeStructure[relativePath], relativePath);
+      } else if (dirent.isFile()) {
+        treeStructure[relativePath] = {};
+        const content = fs.readFileSync(path.join(dirPath, dirent.name), 'utf8');
+        if (content.length > 0) {
+          projectPrint += `${fullPath}:\n${content}\n\n`;
+        }
+      }
+    });
+  } catch (e) {
+    console.error(`Failed to read directory: ${dirPath}`, e);
+  }
+}
+
+function buildTreeStructure(tree: Record<string, any>, indent: string = ''): void {
+  for (const key in tree) {
+    treeStructureString += indent + key + '\n';
+    if (typeof tree[key] === 'object' && Object.keys(tree[key]).length > 0) {
+      buildTreeStructure(tree[key], indent + '  ');
+    }
+  }
+}
+
+function main(): void {
+  if (!startPath) {
+    console.error('Starting directory path is required.');
+    process.exit(1);
+  }
+
+  console.log(`Starting directory read from ${startPath} (ignoring: ${patterns.join(', ')})`);
+
+  readDirectory(startPath, patterns, treeStructure);
+
+  console.log('\nNon-ignored file structure:\n');
+  buildTreeStructure(treeStructure);
+  console.log(treeStructureString);
+
+  const finalContents = `File structure:\n${treeStructureString}\n\nProject print:\n${projectPrint}`;
+  fs.writeFileSync('project-print.txt', '');
+  fs.writeFileSync('project-print.txt', finalContents);
+  console.log(`\nProject print size: ${(projectPrint.length / 1024).toFixed(2)}KB`);
+}
+
+main();
+
+tsconfig.json:
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "lib": [
+      "ES2016",
+      "DOM"
+    ]
+    // Add the "lib" option with "ES2016" and any other required libraries
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+
+

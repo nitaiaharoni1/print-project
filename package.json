@@ -1,0 +1,33 @@
+{
+  "name": "print-project",
+  "version": "1.0.0",
+  "description": "A simple CLI tool to print the project tree structure and file contents",
+  "main": "dist/index.js",
+  "bin": {
+    "print-project": "./dist/index.js"
+  },
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nitaiaharoni1/print-project.git"
+  },
+  "keywords": [],
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "bump": "npm version patch",
+    "package": "npm run lint && npm run test && npm run build && npm run bump && npm publish",
+    "lint": "eslint --ext .ts src",
+    "test": "jest"
+  },
+  "author": "Nitai Aharoni",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.16",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.4"
+  }
+}
