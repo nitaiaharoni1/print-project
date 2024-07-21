@@ -23,20 +23,23 @@ print-project <startPath> [ignorePatterns]
 ```
 
 - `<startPath>`: Required. The path to the directory you want to scan.
+e.g., `/path/to/project`
+- 
 - `[ignorePatterns]`: Optional. A comma-separated list of glob patterns to ignore files and directories.
+e.g., `"node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scripts,.serverless,.idea,.git,.DS_Store,.husky,package-lock.json"`
 
 ### Examples
 
 - **Print all files and directories**:
 
   ```bash
-  print-project /path/to/project
+  print-project ./src
   ```
 
 - **Ignore specific patterns**:
 
   ```bash
-  print-project /path/to/project node_modules,*.log
+  print-project ./src "node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scripts,.serverless,.idea,.git,.DS_Store,.husky,package-lock.json"
   ```
 
 This will ignore all directories and files matching the `node_modules` folder and any files ending with `.log`.
