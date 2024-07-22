@@ -29,3 +29,5 @@ yarn-error.log*
 *.tmp
 *.swp
 *.swo
+
+project-print.txt
