@@ -16,7 +16,8 @@ const userPatterns: string[] = program.args[1] ? program.args[1].split(",").filt
 const useDefaultIgnore: boolean = program.opts().ignoreDefault;
 
 
-const patterns: string[] = useDefaultIgnore ? [...defaultIgnorePatterns, ...userPatterns] : userPatterns;
+let patterns: string[] = useDefaultIgnore ? [...defaultIgnorePatterns, ...userPatterns] : userPatterns;
+patterns.push("project-print.txt");
 
 console.log("Start Path:", startPath);
 console.log("Patterns:", patterns);
