@@ -4,7 +4,8 @@
   "description": "A simple CLI tool to print the project tree structure and file contents",
   "main": "dist/index.js",
   "bin": {
-    "print-project": "./dist/index.js"
+    "print-project": "./dist/index.js",
+    "pp": "./dist/index.js"
   },
   "types": "dist/index.d.ts",
   "repository": {
