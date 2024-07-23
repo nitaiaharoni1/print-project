@@ -1,6 +1,8 @@
 # Print-Project
 
-The `print-project` command-line tool scans a specified directory and generates a report including the tree structure and content of files that do not match given ignore patterns. It is useful for documenting or analyzing the file layout of projects, especially in development environments.
+The `print-project` command-line tool scans a specified directory and generates a report including the tree structure
+and content of files that do not match given ignore patterns. It is useful for documenting or analyzing the file layout
+of projects, especially in development environments.
 
 ## Installation
 
@@ -26,6 +28,20 @@ print-project <startPath> [ignorePatterns]
   e.g., `/path/to/project`
 - `[ignorePatterns]`: Optional. A comma-separated list of glob patterns to ignore files and directories.
   e.g., `"node_modules,*.log,dist,coverage"`
+
+### Command Aliases
+
+You can use either `print-project` or `pp` to run the tool:
+
+```bash
+print-project <startPath> [ignorePatterns]
+```
+
+or
+
+```bash
+pp <startPath> [ignorePatterns]
+```
 
 ### Using Default Ignore Patterns
 
@@ -56,11 +72,19 @@ node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scrip
   ```bash
   print-project ./src
   ```
+  or
+  ```bash
+  pp ./src
+  ```
 
 - **Ignore specific patterns**:
 
   ```bash
   print-project ./src "node_modules,*.log,dist,coverage"
+  ```
+  or
+  ```bash
+  pp ./src "node_modules,*.log,dist,coverage"
   ```
 
 - **Use default ignore patterns**:
@@ -68,11 +92,19 @@ node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scrip
   ```bash
   print-project ./src --ignore-default
   ```
+  or
+  ```bash
+  pp ./src --ignore-default
+  ```
 
 - **Use default ignore patterns and add custom ones**:
 
   ```bash
   print-project ./src "*.tmp,*.bak" --ignore-default
+  ```
+  or
+  ```bash
+  pp ./src "*.tmp,*.bak" --ignore-default
   ```
 
 ## Features
@@ -81,8 +113,9 @@ node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scrip
 - **Ignore Patterns**: Supports glob patterns to exclude specific files or directories from the output.
 - **Default Ignore Patterns**: Provides a set of commonly ignored patterns for convenience.
 - **Output Generation**: Creates a text file `project-print.txt` in the current working directory containing:
-  - The structured list of non-ignored files and directories.
-  - The content of non-empty files.
+    - The structured list of non-ignored files and directories.
+    - The content of non-empty files.
+- **Command Alias**: Can be run using either `print-project` or `pp` for convenience.
 
 ## How It Works
 
@@ -104,4 +137,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contributing
 
-Contributions are welcome. Please open an issue first to discuss what you would like to change, or directly submit a pull request.
+Contributions are welcome. Please open an issue first to discuss what you would like to change, or directly submit a
+pull request.
