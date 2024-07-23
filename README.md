@@ -23,10 +23,31 @@ print-project <startPath> [ignorePatterns]
 ```
 
 - `<startPath>`: Required. The path to the directory you want to scan.
-e.g., `/path/to/project`
-- 
+  e.g., `/path/to/project`
 - `[ignorePatterns]`: Optional. A comma-separated list of glob patterns to ignore files and directories.
-e.g., `"node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scripts,.serverless,.idea,.git,.DS_Store,.husky,package-lock.json"`
+  e.g., `"node_modules,*.log,dist,coverage"`
+
+### Using Default Ignore Patterns
+
+To use the default ignore patterns, add the `--ignore-default` flag:
+
+```bash
+print-project <startPath> --ignore-default
+```
+
+You can also combine default patterns with your own:
+
+```bash
+print-project <startPath> "your,custom,patterns" --ignore-default
+```
+
+### Default Ignore Patterns
+
+The following patterns are ignored by default when using the `--ignore-default` flag:
+
+```
+node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scripts,.serverless,.idea,.git,.DS_Store,.husky,package-lock.json
+```
 
 ### Examples
 
@@ -39,15 +60,26 @@ e.g., `"node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,di
 - **Ignore specific patterns**:
 
   ```bash
-  print-project ./src "node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scripts,.serverless,.idea,.git,.DS_Store,.husky,package-lock.json"
+  print-project ./src "node_modules,*.log,dist,coverage"
   ```
 
-This will ignore all directories and files matching the `node_modules` folder and any files ending with `.log`.
+- **Use default ignore patterns**:
+
+  ```bash
+  print-project ./src --ignore-default
+  ```
+
+- **Use default ignore patterns and add custom ones**:
+
+  ```bash
+  print-project ./src "*.tmp,*.bak" --ignore-default
+  ```
 
 ## Features
 
 - **Directory Scanning**: Recursively scans the provided directory path.
 - **Ignore Patterns**: Supports glob patterns to exclude specific files or directories from the output.
+- **Default Ignore Patterns**: Provides a set of commonly ignored patterns for convenience.
 - **Output Generation**: Creates a text file `project-print.txt` in the current working directory containing:
   - The structured list of non-ignored files and directories.
   - The content of non-empty files.
