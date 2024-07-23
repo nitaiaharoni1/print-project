@@ -31,7 +31,7 @@ print-project <startPath> [ignorePatterns]
 
 ### Command Aliases
 
-You can use either `print-project` or `pp` to run the tool:
+You can use either `print-project` or `pprint` to run the tool:
 
 ```bash
 print-project <startPath> [ignorePatterns]
@@ -40,7 +40,7 @@ print-project <startPath> [ignorePatterns]
 or
 
 ```bash
-pp <startPath> [ignorePatterns]
+pprint <startPath> [ignorePatterns]
 ```
 
 ### Using Default Ignore Patterns
@@ -74,7 +74,7 @@ node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scrip
   ```
   or
   ```bash
-  pp ./src
+  pprint ./src
   ```
 
 - **Ignore specific patterns**:
@@ -84,7 +84,7 @@ node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scrip
   ```
   or
   ```bash
-  pp ./src "node_modules,*.log,dist,coverage"
+  pprint ./src "node_modules,*.log,dist,coverage"
   ```
 
 - **Use default ignore patterns**:
@@ -94,7 +94,7 @@ node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scrip
   ```
   or
   ```bash
-  pp ./src --ignore-default
+  pprint ./src --ignore-default
   ```
 
 - **Use default ignore patterns and add custom ones**:
@@ -104,7 +104,7 @@ node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scrip
   ```
   or
   ```bash
-  pp ./src "*.tmp,*.bak" --ignore-default
+  pprint ./src "*.tmp,*.bak" --ignore-default
   ```
 
 ## Features
@@ -115,7 +115,7 @@ node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scrip
 - **Output Generation**: Creates a text file `project-print.txt` in the current working directory containing:
     - The structured list of non-ignored files and directories.
     - The content of non-empty files.
-- **Command Alias**: Can be run using either `print-project` or `pp` for convenience.
+- **Command Alias**: Can be run using either `print-project` or `pprint` for convenience.
 
 ## How It Works
 
