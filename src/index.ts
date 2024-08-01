@@ -9,44 +9,50 @@ let treeStructure: Record<string, any> = {};
 let treeStructureString: string = "";
 
 const program = new Command();
-program.argument("<startPath>", "Starting directory path").argument("[ignorePatterns]", "Comma-separated list of patterns to ignore").option("--ignore-default", "Use default ignore patterns").parse(process.argv);
+program
+  .argument("<startPath>", "Starting directory path")
+  .option("--ignore <patterns>", "Comma-separated list of patterns to ignore")
+  .option("--include <patterns>", "Comma-separated list of patterns to include")
+  .option("--ignore-default", "Use default ignore patterns")
+  .parse(process.argv);
 
 const startPath: string | undefined = program.args[0] && path.resolve(program.args[0]);
-const userPatterns: string[] = program.args[1] ? program.args[1].split(",").filter(Boolean).map(pattern => pattern.trim()) : [];
-const useDefaultIgnore: boolean = program.opts().ignoreDefault;
+const options = program.opts();
+const userIgnorePatterns: string[] = options.ignore ? options.ignore.split(",").filter(Boolean).map((pattern: string) => pattern.trim()) : [];
+const includePatterns: string[] = options.include ? options.include.split(",").filter(Boolean).map((pattern: string) => pattern.trim()) : [];
+const useDefaultIgnore: boolean = options.ignoreDefault;
 
-
-let patterns: string[] = useDefaultIgnore ? [...defaultIgnorePatterns, ...userPatterns] : userPatterns;
-patterns.push("project-print.txt");
+let ignorePatterns: string[] = useDefaultIgnore ? [...defaultIgnorePatterns, ...userIgnorePatterns] : userIgnorePatterns;
+ignorePatterns.push("project-print.txt");
 
 console.log("Start Path:", startPath);
-console.log("Patterns:", patterns);
+console.log("Ignore Patterns:", ignorePatterns);
+console.log("Include Patterns:", includePatterns);
 
-function isIgnored(filePath: string, patterns: string[]): boolean {
-  try {
-    return patterns.some(pattern => {
-      const parsedPattern = pattern.replace(/\./g, "\\.").replace(/\*/g, ".*");
-      const regex = new RegExp(parsedPattern);
-      return regex.test(filePath);
-    });
-  } catch (e) {
-    console.error(`Failed to check if ignored: ${filePath}`, e);
-    return false;
-  }
+function matchesPattern(filePath: string, patterns: string[]): boolean {
+  return patterns.some(pattern => {
+    const parsedPattern = pattern.replace(/\./g, "\\.").replace(/\*/g, ".*");
+    const regex = new RegExp(parsedPattern);
+    return regex.test(filePath);
+  });
 }
 
-function readDirectory(dirPath: string, patterns: string[] = [], treeStructure: Record<string, any> = {}, currentPath: string = ""): void {
+function shouldIncludeFile(filePath: string, ignorePatterns: string[], includePatterns: string[]): boolean {
+  return !matchesPattern(filePath, ignorePatterns) || matchesPattern(filePath, includePatterns);
+}
+
+function readDirectory(dirPath: string, ignorePatterns: string[], includePatterns: string[], treeStructure: Record<string, any> = {}, currentPath: string = ""): void {
   try {
     const dirents = fs.readdirSync(dirPath, { withFileTypes: true });
     dirents.forEach((dirent) => {
       const fullPath = path.relative(process.cwd(), path.join(dirPath, dirent.name)).replace(/\\/g, "/");
-      if (isIgnored(fullPath, patterns)) {
+      if (!shouldIncludeFile(fullPath, ignorePatterns, includePatterns)) {
         return;
       }
       const relativePath = path.join(currentPath, dirent.name).replace(/\\/g, "/");
       if (dirent.isDirectory()) {
         treeStructure[relativePath] = {};
-        readDirectory(path.join(dirPath, dirent.name), patterns, treeStructure[relativePath], relativePath);
+        readDirectory(path.join(dirPath, dirent.name), ignorePatterns, includePatterns, treeStructure[relativePath], relativePath);
       } else if (dirent.isFile()) {
         treeStructure[relativePath] = {};
         const content = fs.readFileSync(path.join(dirPath, dirent.name), "utf8");
@@ -76,11 +82,12 @@ function main(): void {
   }
 
   console.log(`Starting directory read from ${startPath}`);
-  console.log(`Ignoring: ${patterns.join(", ")}`);
+  console.log(`Ignoring: ${ignorePatterns.join(", ")}`);
+  console.log(`Including: ${includePatterns.length > 0 ? includePatterns.join(", ") : "All files (except ignored)"}`);
   console.log(`Using default ignore: ${useDefaultIgnore}`);
 
-  readDirectory(startPath, patterns, treeStructure);
-  console.log("\nNon-ignored file structure:\n");
+  readDirectory(startPath, ignorePatterns, includePatterns, treeStructure);
+  console.log("\nProcessed file structure:\n");
   buildTreeStructure(treeStructure);
   console.log(treeStructureString);
 
