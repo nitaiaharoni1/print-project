@@ -9,12 +9,7 @@ let treeStructure: Record<string, any> = {};
 let treeStructureString: string = "";
 
 const program = new Command();
-program
-  .argument("<startPath>", "Starting directory path")
-  .option("--ignore <patterns>", "Comma-separated list of patterns to ignore")
-  .option("--include <patterns>", "Comma-separated list of patterns to include")
-  .option("--ignore-default", "Disable default ignore patterns")
-  .parse(process.argv);
+program.argument("<startPath>", "Starting directory path").option("--ignore <patterns>", "Comma-separated list of patterns to ignore").option("--include <patterns>", "Comma-separated list of patterns to include").option("--ignore-default", "Disable default ignore patterns").parse(process.argv);
 
 const startPath: string | undefined = program.args[0] && path.resolve(program.args[0]);
 const options = program.opts();
@@ -22,25 +17,22 @@ const userIgnorePatterns: string[] = options.ignore ? options.ignore.split(",").
 const includePatterns: string[] = options.include ? options.include.split(",").filter(Boolean).map((pattern: string) => pattern.trim()) : [];
 
 // Build the final ignore patterns list
-let ignorePatterns: string[] = [];
+let ignorePatterns: string[] = ["project-print.txt"]; // Always ignore the output file
 
-// Always include project-print.txt in ignore patterns
-const alwaysIgnore = ["project-print.txt"];
-
-// If user specified --ignore-default, don't use default patterns
+// If NOT using --ignore-default, add default patterns
 if (!options.ignoreDefault) {
-  ignorePatterns = [...defaultIgnorePatterns];
+  ignorePatterns = [...defaultIgnorePatterns, ...ignorePatterns];
 }
 
 // Add user's ignore patterns
-ignorePatterns = [...ignorePatterns, ...userIgnorePatterns, ...alwaysIgnore];
+ignorePatterns = [...ignorePatterns, ...userIgnorePatterns];
 
-// Remove any patterns that match the include patterns
+// If we have include patterns, we should exclude any ignore patterns that would block them
 if (includePatterns.length > 0) {
+  // Keep only ignore patterns that don't match any include patterns
   ignorePatterns = ignorePatterns.filter(ignorePattern => {
     return !includePatterns.some(includePattern => {
-      // If the ignore pattern matches any include pattern, remove it from ignores
-      const ignoreRegex = new RegExp(ignorePattern.replace(/\*/g, '.*'), 'i');
+      const ignoreRegex = new RegExp(ignorePattern.replace(/\*/g, ".*"), "i");
       return ignoreRegex.test(includePattern);
     });
   });
@@ -48,12 +40,9 @@ if (includePatterns.length > 0) {
 
 function matchesPattern(filePath: string, patterns: string[]): boolean {
   return patterns.some(pattern => {
-    const regexPattern = pattern
-      .split('*')
-      .map(s => s.replace(/[|\\{}()[\]^$+?.]/g, '\\$&'))
-      .join('.*');
+    const regexPattern = pattern.split("*").map(s => s.replace(/[|\\{}()[\]^$+?.]/g, "\\$&")).join(".*");
 
-    const regex = new RegExp(regexPattern, 'i');
+    const regex = new RegExp(regexPattern, "i");
     console.log(`Checking ${filePath} against pattern: ${pattern} (regex: ${regex})`);
     const matches = regex.test(filePath);
     console.log(`Match result: ${matches}`);
