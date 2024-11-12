@@ -40,65 +40,59 @@ function matchesPattern(filePath: string, patterns: string[]): boolean {
       .join(".*");
 
     const regex = new RegExp(regexPattern, "i");
-    console.log(`Checking ${filePath} against pattern: ${pattern} (regex: ${regex})`);
-    const matches = regex.test(filePath);
-    console.log(`Match result: ${matches}`);
-    return matches;
+    return regex.test(filePath);
   });
 }
 
 function shouldIncludeFile(filePath: string, ignorePatterns: string[], includePatterns: string[]): boolean {
-  console.log(`\nChecking file: ${filePath}`);
+  // First check if the file matches any include patterns
+  const isIncluded = includePatterns.length > 0 ? matchesPattern(filePath, includePatterns) : true;
 
-  // If there are include patterns and file matches one, include it regardless of ignore patterns
-  if (includePatterns.length > 0) {
-    const isIncluded = matchesPattern(filePath, includePatterns);
-    console.log(`Include pattern match: ${isIncluded}`);
-    return isIncluded;
+  // If the file doesn't match include patterns (when they exist), exclude it
+  if (!isIncluded) {
+    return false;
   }
 
-  // Otherwise, exclude if it matches ignore patterns
+  // If the file matches include patterns (or there are no include patterns)
+  // AND doesn't match ignore patterns, include it
   const isIgnored = matchesPattern(filePath, ignorePatterns);
-  console.log(`Ignore pattern match: ${isIgnored}`);
+
+  // Special case: if the file matches both include and ignore patterns,
+  // prioritize the include pattern
+  if (includePatterns.length > 0 && isIncluded) {
+    return true;
+  }
+
   return !isIgnored;
 }
 
 function readDirectory(dirPath: string, ignorePatterns: string[], includePatterns: string[], treeStructure: Record<string, any> = {}, currentPath: string = ""): void {
   try {
-    console.log(`\nReading directory: ${dirPath}`);
     const dirents = fs.readdirSync(dirPath, { withFileTypes: true });
 
     dirents.forEach((dirent) => {
       const fullPath = path.relative(process.cwd(), path.join(dirPath, dirent.name)).replace(/\\/g, "/");
-      console.log(`\nProcessing: ${fullPath}`);
 
       if (dirent.isDirectory()) {
-        console.log(`${fullPath} is a directory`);
-        // If directory matches ignore pattern AND doesn't match include pattern, skip it
-        const shouldIgnoreDir = matchesPattern(fullPath, ignorePatterns) &&
-                              (!includePatterns.length || !matchesPattern(fullPath, includePatterns));
+        // For directories, check if they should be included based on patterns
+        const shouldIncludeDir = shouldIncludeFile(fullPath, ignorePatterns, includePatterns);
 
-        if (shouldIgnoreDir) {
-          console.log(`Skipping ignored directory: ${fullPath}`);
-          return;
+        if (shouldIncludeDir) {
+          treeStructure[fullPath] = {};
+          readDirectory(
+            path.join(dirPath, dirent.name),
+            ignorePatterns,
+            includePatterns,
+            treeStructure[fullPath],
+            fullPath
+          );
         }
-
-        treeStructure[fullPath] = {};
-        readDirectory(
-          path.join(dirPath, dirent.name),
-          ignorePatterns,
-          includePatterns,
-          treeStructure[fullPath],
-          fullPath
-        );
       } else if (dirent.isFile()) {
-        console.log(`${fullPath} is a file`);
         if (shouldIncludeFile(fullPath, ignorePatterns, includePatterns)) {
           treeStructure[fullPath] = {};
           const content = fs.readFileSync(path.join(dirPath, dirent.name), "utf8");
           if (content.length > 0) {
             projectPrint += `${fullPath}:\n${content}\n\n`;
-            console.log(`Added ${fullPath} to project print`);
           }
         }
       }
@@ -129,9 +123,7 @@ function main(): void {
   console.log(`Using default ignore: ${!options.ignoreDefault}`);
 
   readDirectory(startPath, ignorePatterns, includePatterns, treeStructure);
-  console.log("\nProcessed file structure:\n");
   buildTreeStructure(treeStructure);
-  console.log(treeStructureString);
 
   const finalContents = `File structure:\n${treeStructureString}\n\nProject print:\n${projectPrint}`;
   fs.writeFileSync("project-print.txt", finalContents);
