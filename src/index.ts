@@ -9,12 +9,7 @@ let treeStructure: Record<string, any> = {};
 let treeStructureString: string = "";
 
 const program = new Command();
-program
-  .argument("<startPath>", "Starting directory path")
-  .option("--ignore <patterns>", "Comma-separated list of patterns to ignore")
-  .option("--include <patterns>", "Comma-separated list of patterns to include")
-  .option("--ignore-default", "Use default ignore patterns")
-  .parse(process.argv);
+program.argument("<startPath>", "Starting directory path").option("--ignore <patterns>", "Comma-separated list of patterns to ignore").option("--include <patterns>", "Comma-separated list of patterns to include").option("--ignore-default", "Use default ignore patterns").parse(process.argv);
 
 const startPath: string | undefined = program.args[0] && path.resolve(program.args[0]);
 const options = program.opts();
@@ -30,42 +25,72 @@ console.log("Ignore Patterns:", ignorePatterns);
 console.log("Include Patterns:", includePatterns);
 
 function matchesPattern(filePath: string, patterns: string[]): boolean {
+  console.log(`\nChecking patterns for file: ${filePath}`);
+
   return patterns.some(pattern => {
-    const escapedPattern = pattern
-      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-      .replace(/\*/g, '.*')
-      .replace(/\?/g, '.');
-    const regex = new RegExp(`^${escapedPattern}$|/${escapedPattern}$|/${escapedPattern}/|^${escapedPattern}/`);
-    return regex.test(filePath);
+    // Escape special regex characters except * and ?
+    const escapedPattern = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".");
+
+    const regex = new RegExp(escapedPattern, "i"); // Added 'i' flag for case-insensitive matching
+    const matches = regex.test(filePath);
+
+    console.log(`  Pattern: ${pattern}`);
+    console.log(`  Regex: ${regex}`);
+    console.log(`  Matches: ${matches}`);
+
+    return matches;
   });
 }
 
 function shouldIncludeFile(filePath: string, ignorePatterns: string[], includePatterns: string[]): boolean {
+  console.log(`\nEvaluating file: ${filePath}`);
+
   const isIgnored = matchesPattern(filePath, ignorePatterns);
+  console.log(`Is ignored: ${isIgnored}`);
+
   const isIncluded = includePatterns.length === 0 || matchesPattern(filePath, includePatterns);
+  console.log(`Is included: ${isIncluded}`);
+
+  // If we have include patterns, they take precedence
   if (includePatterns.length > 0) {
+    console.log(`Include patterns exist, returning: ${isIncluded}`);
     return isIncluded;
   }
+
+  // Otherwise, include if not ignored
+  console.log(`No include patterns, returning: ${!isIgnored}`);
   return !isIgnored;
 }
 
 function readDirectory(dirPath: string, ignorePatterns: string[], includePatterns: string[], treeStructure: Record<string, any> = {}, currentPath: string = ""): void {
   try {
+    console.log(`\nReading directory: ${dirPath}`);
     const dirents = fs.readdirSync(dirPath, { withFileTypes: true });
+
     dirents.forEach((dirent) => {
       const fullPath = path.relative(process.cwd(), path.join(dirPath, dirent.name)).replace(/\\/g, "/");
-      if (!shouldIncludeFile(fullPath, ignorePatterns, includePatterns)) {
+      console.log(`\nProcessing: ${fullPath}`);
+
+      const include = shouldIncludeFile(fullPath, ignorePatterns, includePatterns);
+      console.log(`Should include ${fullPath}: ${include}`);
+
+      if (!include) {
+        console.log(`Skipping ${fullPath}`);
         return;
       }
+
       const relativePath = path.join(currentPath, dirent.name).replace(/\\/g, "/");
       if (dirent.isDirectory()) {
+        console.log(`${fullPath} is a directory`);
         treeStructure[relativePath] = {};
         readDirectory(path.join(dirPath, dirent.name), ignorePatterns, includePatterns, treeStructure[relativePath], relativePath);
       } else if (dirent.isFile()) {
+        console.log(`${fullPath} is a file`);
         treeStructure[relativePath] = {};
         const content = fs.readFileSync(path.join(dirPath, dirent.name), "utf8");
         if (content.length > 0) {
           projectPrint += `${fullPath}:\n${content}\n\n`;
+          console.log(`Added ${fullPath} to project print`);
         }
       }
     });
