@@ -13,21 +13,20 @@ program
   .argument("<startPath>", "Starting directory path")
   .option("--ignore <patterns>", "Comma-separated list of patterns to ignore")
   .option("--include <patterns>", "Comma-separated list of patterns to include")
-  .option("--ignore-default", "Disable default ignore patterns")  // Changed description to be clearer
+  .option("--ignore-default", "Disable default ignore patterns")
   .parse(process.argv);
 
 const startPath: string | undefined = program.args[0] && path.resolve(program.args[0]);
 const options = program.opts();
 const userIgnorePatterns: string[] = options.ignore ? options.ignore.split(",").filter(Boolean).map((pattern: string) => pattern.trim()) : [];
 const includePatterns: string[] = options.include ? options.include.split(",").filter(Boolean).map((pattern: string) => pattern.trim()) : [];
-const useDefaultIgnore: boolean = !options.ignoreDefault;  // FIXED: Inverted the logic here
+const useDefaultIgnore: boolean = !options.ignoreDefault;
 
 let ignorePatterns: string[] = useDefaultIgnore ? [...defaultIgnorePatterns, ...userIgnorePatterns] : userIgnorePatterns;
 ignorePatterns.push("project-print.txt");
 
 function matchesPattern(filePath: string, patterns: string[]): boolean {
   return patterns.some(pattern => {
-    // Convert glob pattern to regex
     const regexPattern = pattern
       .split('*')
       .map(s => s.replace(/[|\\{}()[\]^$+?.]/g, '\\$&'))
@@ -44,17 +43,22 @@ function matchesPattern(filePath: string, patterns: string[]): boolean {
 function shouldIncludeFile(filePath: string, ignorePatterns: string[], includePatterns: string[]): boolean {
   console.log(`\nChecking file: ${filePath}`);
 
-  // If we have include patterns, only include files that match them
+  // First check if file matches ignore patterns
+  const isIgnored = matchesPattern(filePath, ignorePatterns);
+  if (isIgnored) {
+    console.log(`File is ignored: ${filePath}`);
+    return false;
+  }
+
+  // If we have include patterns, check if file matches them
   if (includePatterns.length > 0) {
     const isIncluded = matchesPattern(filePath, includePatterns);
     console.log(`Include pattern match: ${isIncluded}`);
     return isIncluded;
   }
 
-  // Otherwise, include files that don't match ignore patterns
-  const isIgnored = matchesPattern(filePath, ignorePatterns);
-  console.log(`Ignore pattern match: ${isIgnored}`);
-  return !isIgnored;
+  // If no include patterns, include all non-ignored files
+  return true;
 }
 
 function readDirectory(dirPath: string, ignorePatterns: string[], includePatterns: string[], treeStructure: Record<string, any> = {}, currentPath: string = ""): void {
@@ -66,26 +70,30 @@ function readDirectory(dirPath: string, ignorePatterns: string[], includePattern
       const fullPath = path.relative(process.cwd(), path.join(dirPath, dirent.name)).replace(/\\/g, "/");
       console.log(`\nProcessing: ${fullPath}`);
 
-      const include = shouldIncludeFile(fullPath, ignorePatterns, includePatterns);
-      console.log(`Should include ${fullPath}: ${include}`);
-
-      if (!include) {
-        console.log(`Skipping ${fullPath}`);
-        return;
-      }
-
-      const relativePath = path.join(currentPath, dirent.name).replace(/\\/g, "/");
+      // For directories, we always recurse unless they're explicitly ignored
       if (dirent.isDirectory()) {
         console.log(`${fullPath} is a directory`);
-        treeStructure[relativePath] = {};
-        readDirectory(path.join(dirPath, dirent.name), ignorePatterns, includePatterns, treeStructure[relativePath], relativePath);
+        if (!matchesPattern(fullPath, ignorePatterns)) {
+          treeStructure[fullPath] = {};
+          readDirectory(
+            path.join(dirPath, dirent.name),
+            ignorePatterns,
+            includePatterns,
+            treeStructure[fullPath],
+            fullPath
+          );
+        } else {
+          console.log(`Skipping ignored directory: ${fullPath}`);
+        }
       } else if (dirent.isFile()) {
         console.log(`${fullPath} is a file`);
-        treeStructure[relativePath] = {};
-        const content = fs.readFileSync(path.join(dirPath, dirent.name), "utf8");
-        if (content.length > 0) {
-          projectPrint += `${fullPath}:\n${content}\n\n`;
-          console.log(`Added ${fullPath} to project print`);
+        if (shouldIncludeFile(fullPath, ignorePatterns, includePatterns)) {
+          treeStructure[fullPath] = {};
+          const content = fs.readFileSync(path.join(dirPath, dirent.name), "utf8");
+          if (content.length > 0) {
+            projectPrint += `${fullPath}:\n${content}\n\n`;
+            console.log(`Added ${fullPath} to project print`);
+          }
         }
       }
     });
