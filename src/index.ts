@@ -9,12 +9,7 @@ let treeStructure: Record<string, any> = {};
 let treeStructureString: string = "";
 
 const program = new Command();
-program
-  .argument("<startPath>", "Starting directory path")
-  .option("--ignore <patterns>", "Comma-separated list of patterns to ignore")
-  .option("--include <patterns>", "Comma-separated list of patterns to include")
-  .option("--ignore-default", "Disable default ignore patterns")
-  .parse(process.argv);
+program.argument("<startPath>", "Starting directory path").option("--ignore <patterns>", "Comma-separated list of patterns to ignore").option("--include <patterns>", "Comma-separated list of patterns to include").option("--ignore-default", "Disable default ignore patterns").parse(process.argv);
 
 const startPath: string | undefined = program.args[0] && path.resolve(program.args[0]);
 const options = program.opts();
@@ -26,7 +21,7 @@ let ignorePatterns: string[] = ["project-print.txt"]; // Always ignore the outpu
 
 // If NOT using --ignore-default, add default patterns
 if (!options.ignoreDefault) {
-  ignorePatterns = [...defaultIgnorePatterns, ...ignorePatterns];
+  ignorePatterns = [...ignorePatterns, ...defaultIgnorePatterns];
 }
 
 // Add user's ignore patterns
@@ -34,36 +29,23 @@ ignorePatterns = [...ignorePatterns, ...userIgnorePatterns];
 
 function matchesPattern(filePath: string, patterns: string[]): boolean {
   return patterns.some(pattern => {
-    const regexPattern = pattern
-      .split("*")
-      .map(s => s.replace(/[|\\{}()[\]^$+?.]/g, "\\$&"))
-      .join(".*");
+    // Handle paths that might contain slashes
+    const normalizedPath = filePath.replace(/\\/g, "/");
+    const regexPattern = pattern.split("*").map(s => s.replace(/[|\\{}()[\]^$+?.]/g, "\\$&")).join(".*");
 
     const regex = new RegExp(regexPattern, "i");
-    return regex.test(filePath);
+    return regex.test(normalizedPath);
   });
 }
 
 function shouldIncludeFile(filePath: string, ignorePatterns: string[], includePatterns: string[]): boolean {
-  // First check if the file matches any include patterns
-  const isIncluded = includePatterns.length > 0 ? matchesPattern(filePath, includePatterns) : true;
-
-  // If the file doesn't match include patterns (when they exist), exclude it
-  if (!isIncluded) {
-    return false;
+  // If include patterns exist, check if path contains any of them
+  if (includePatterns.length > 0) {
+    return includePatterns.some(pattern => filePath.toLowerCase().includes(pattern.toLowerCase()));
   }
 
-  // If the file matches include patterns (or there are no include patterns)
-  // AND doesn't match ignore patterns, include it
-  const isIgnored = matchesPattern(filePath, ignorePatterns);
-
-  // Special case: if the file matches both include and ignore patterns,
-  // prioritize the include pattern
-  if (includePatterns.length > 0 && isIncluded) {
-    return true;
-  }
-
-  return !isIgnored;
+  // If no include patterns, check against ignore patterns
+  return !matchesPattern(filePath, ignorePatterns);
 }
 
 function readDirectory(dirPath: string, ignorePatterns: string[], includePatterns: string[], treeStructure: Record<string, any> = {}, currentPath: string = ""): void {
@@ -74,25 +56,36 @@ function readDirectory(dirPath: string, ignorePatterns: string[], includePattern
       const fullPath = path.relative(process.cwd(), path.join(dirPath, dirent.name)).replace(/\\/g, "/");
 
       if (dirent.isDirectory()) {
-        // For directories, check if they should be included based on patterns
-        const shouldIncludeDir = shouldIncludeFile(fullPath, ignorePatterns, includePatterns);
+        // Always process directory if it contains include pattern
+        const shouldProcessDir = includePatterns.length > 0
+          ? includePatterns.some(pattern => fullPath.toLowerCase().includes(pattern.toLowerCase()))
+          : !matchesPattern(fullPath, ignorePatterns);
 
-        if (shouldIncludeDir) {
+        if (shouldProcessDir || includePatterns.length > 0) {  // Always traverse if we have include patterns
           treeStructure[fullPath] = {};
           readDirectory(
             path.join(dirPath, dirent.name),
             ignorePatterns,
             includePatterns,
             treeStructure[fullPath],
-            fullPath
+            fullPath,
           );
+
+          // Remove empty directories from tree structure
+          if (Object.keys(treeStructure[fullPath]).length === 0) {
+            delete treeStructure[fullPath];
+          }
         }
       } else if (dirent.isFile()) {
         if (shouldIncludeFile(fullPath, ignorePatterns, includePatterns)) {
-          treeStructure[fullPath] = {};
-          const content = fs.readFileSync(path.join(dirPath, dirent.name), "utf8");
-          if (content.length > 0) {
-            projectPrint += `${fullPath}:\n${content}\n\n`;
+          try {
+            const content = fs.readFileSync(path.join(dirPath, dirent.name), "utf8");
+            if (content.length > 0) {
+              treeStructure[fullPath] = {};
+              projectPrint += `${fullPath}:\n${content}\n\n`;
+            }
+          } catch (error: any) {
+            console.error(`Error reading file ${fullPath}:`, error.message);
           }
         }
       }
