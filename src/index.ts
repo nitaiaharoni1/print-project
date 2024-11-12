@@ -31,14 +31,22 @@ console.log("Include Patterns:", includePatterns);
 
 function matchesPattern(filePath: string, patterns: string[]): boolean {
   return patterns.some(pattern => {
-    const parsedPattern = pattern.replace(/\./g, "\\.").replace(/\*/g, ".*");
-    const regex = new RegExp(parsedPattern);
+    const escapedPattern = pattern
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+      .replace(/\*/g, '.*')
+      .replace(/\?/g, '.');
+    const regex = new RegExp(`^${escapedPattern}$|/${escapedPattern}$|/${escapedPattern}/|^${escapedPattern}/`);
     return regex.test(filePath);
   });
 }
 
 function shouldIncludeFile(filePath: string, ignorePatterns: string[], includePatterns: string[]): boolean {
-  return !matchesPattern(filePath, ignorePatterns) || matchesPattern(filePath, includePatterns);
+  const isIgnored = matchesPattern(filePath, ignorePatterns);
+  const isIncluded = includePatterns.length === 0 || matchesPattern(filePath, includePatterns);
+  if (includePatterns.length > 0) {
+    return isIncluded;
+  }
+  return !isIgnored;
 }
 
 function readDirectory(dirPath: string, ignorePatterns: string[], includePatterns: string[], treeStructure: Record<string, any> = {}, currentPath: string = ""): void {
