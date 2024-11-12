@@ -9,12 +9,7 @@ let treeStructure: Record<string, any> = {};
 let treeStructureString: string = "";
 
 const program = new Command();
-program
-  .argument("<startPath>", "Starting directory path")
-  .option("--ignore <patterns>", "Comma-separated list of patterns to ignore")
-  .option("--include <patterns>", "Comma-separated list of patterns to include")
-  .option("--ignore-default", "Disable default ignore patterns")
-  .parse(process.argv);
+program.argument("<startPath>", "Starting directory path").option("--ignore <patterns>", "Comma-separated list of patterns to ignore").option("--include <patterns>", "Comma-separated list of patterns to include").option("--ignore-default", "Disable default ignore patterns").parse(process.argv);
 
 const startPath: string | undefined = program.args[0] && path.resolve(program.args[0]);
 const options = program.opts();
@@ -27,12 +22,9 @@ ignorePatterns.push("project-print.txt");
 
 function matchesPattern(filePath: string, patterns: string[]): boolean {
   return patterns.some(pattern => {
-    const regexPattern = pattern
-      .split('*')
-      .map(s => s.replace(/[|\\{}()[\]^$+?.]/g, '\\$&'))
-      .join('.*');
+    const regexPattern = pattern.split("*").map(s => s.replace(/[|\\{}()[\]^$+?.]/g, "\\$&")).join(".*");
 
-    const regex = new RegExp(regexPattern, 'i');
+    const regex = new RegExp(regexPattern, "i");
     console.log(`Checking ${filePath} against pattern: ${pattern} (regex: ${regex})`);
     const matches = regex.test(filePath);
     console.log(`Match result: ${matches}`);
@@ -43,21 +35,22 @@ function matchesPattern(filePath: string, patterns: string[]): boolean {
 function shouldIncludeFile(filePath: string, ignorePatterns: string[], includePatterns: string[]): boolean {
   console.log(`\nChecking file: ${filePath}`);
 
-  // First check if file matches ignore patterns
+  // First check ignore patterns - they always apply
   const isIgnored = matchesPattern(filePath, ignorePatterns);
+  console.log(`Ignore pattern match: ${isIgnored}`);
   if (isIgnored) {
-    console.log(`File is ignored: ${filePath}`);
     return false;
   }
 
-  // If we have include patterns, check if file matches them
+  // If there are include patterns, file must match them
   if (includePatterns.length > 0) {
     const isIncluded = matchesPattern(filePath, includePatterns);
     console.log(`Include pattern match: ${isIncluded}`);
+    // Include this file if it matches include patterns
     return isIncluded;
   }
 
-  // If no include patterns, include all non-ignored files
+  // If no include patterns and not ignored, include the file
   return true;
 }
 
@@ -70,9 +63,9 @@ function readDirectory(dirPath: string, ignorePatterns: string[], includePattern
       const fullPath = path.relative(process.cwd(), path.join(dirPath, dirent.name)).replace(/\\/g, "/");
       console.log(`\nProcessing: ${fullPath}`);
 
-      // For directories, we always recurse unless they're explicitly ignored
       if (dirent.isDirectory()) {
         console.log(`${fullPath} is a directory`);
+        // Directories are skipped only if they match ignore patterns
         if (!matchesPattern(fullPath, ignorePatterns)) {
           treeStructure[fullPath] = {};
           readDirectory(
@@ -80,7 +73,7 @@ function readDirectory(dirPath: string, ignorePatterns: string[], includePattern
             ignorePatterns,
             includePatterns,
             treeStructure[fullPath],
-            fullPath
+            fullPath,
           );
         } else {
           console.log(`Skipping ignored directory: ${fullPath}`);
