@@ -45,21 +45,21 @@ pprint <startPath> [ignorePatterns]
 
 ### Using Default Ignore Patterns
 
-To use the default ignore patterns, add the `--ignore-default` flag:
+To remove the default ignore patterns, add the `--remove-default` flag:
 
 ```bash
-print-project <startPath> --ignore-default
+print-project <startPath> --remove-default
 ```
 
 You can also combine default patterns with your own:
 
 ```bash
-print-project <startPath> "your,custom,patterns" --ignore-default
+print-project <startPath> "your,custom,patterns" --remove-default
 ```
 
 ### Default Ignore Patterns
 
-The following patterns are ignored by default when using the `--ignore-default` flag:
+The following patterns are ignored by default:
 
 ```
 node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scripts,.serverless,.idea,.git,.DS_Store,.husky,package-lock.json
@@ -90,21 +90,13 @@ node_modules,*.log,dist,coverage,documentation,.prettierrc,.gitignore,dist,scrip
 - **Use default ignore patterns**:
 
   ```bash
-  print-project ./src --ignore-default
-  ```
-  or
-  ```bash
-  pprint ./src --ignore-default
+  print-project ./src
   ```
 
 - **Use default ignore patterns and add custom ones**:
 
   ```bash
-  print-project ./src "*.tmp,*.bak" --ignore-default
-  ```
-  or
-  ```bash
-  pprint ./src "*.tmp,*.bak" --ignore-default
+  print-project ./src "*.tmp,*.bak"
   ```
 
 ## Features
