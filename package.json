@@ -15,7 +15,7 @@
   "keywords": [],
   "scripts": {
     "build": "tsc",
-    "start": "ts-node src/index.ts . --ignore-default --include dist,src",
+    "start": "ts-node src/index.ts .",
     "bump": "npm version patch",
     "package": "npm run build && npm run bump && npm publish"
   },
