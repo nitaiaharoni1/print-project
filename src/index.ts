@@ -20,7 +20,7 @@ const shouldAddDefaultIgnorePatterns: boolean = !options.removeDefault;
 // Build the final ignore patterns list
 let ignorePatterns: string[] = ["project-print.txt"]; // Always ignore the output file
 
-// If NOT using --ignore-default, add default patterns FIRST
+// If NOT using --remove-default, add default patterns FIRST
 if (shouldAddDefaultIgnorePatterns) {
   ignorePatterns = [...defaultIgnorePatterns, ...ignorePatterns];
 }
