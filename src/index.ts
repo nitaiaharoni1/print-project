@@ -19,16 +19,24 @@ const includePatterns: string[] = options.include ? options.include.split(",").f
 // Build the final ignore patterns list
 let ignorePatterns: string[] = ["project-print.txt"]; // Always ignore the output file
 
-// Add user's ignore patterns
-ignorePatterns = [...ignorePatterns, ...userIgnorePatterns];
-
-// If NOT using --ignore-default, add default patterns
+// If NOT using --ignore-default, add default patterns FIRST
 if (!options.ignoreDefault) {
-  ignorePatterns = [...ignorePatterns, ...defaultIgnorePatterns];
+  ignorePatterns = [...defaultIgnorePatterns, ...ignorePatterns];
 }
 
+// Add user's ignore patterns LAST to give them precedence
+ignorePatterns = [...ignorePatterns, ...userIgnorePatterns];
+
 function matchesAnyPattern(filePath: string, patterns: string[]): boolean {
+  if (patterns.length === 0) {
+    return false;
+  }
+
   return patterns.some(pattern => {
+    if (!pattern) {
+      return false;
+    }
+
     const normalizedPath = filePath.replace(/\\/g, "/").toLowerCase();
     const normalizedPattern = pattern.toLowerCase();
 
@@ -49,12 +57,7 @@ function matchesAnyPattern(filePath: string, patterns: string[]): boolean {
 function shouldProcess(filePath: string): boolean {
   // If we have include patterns, file must match one of them
   if (includePatterns.length > 0) {
-    const isIncluded = matchesAnyPattern(filePath, includePatterns);
-    if (!isIncluded) {
-      return false;
-    }
-    // If file matches include pattern, include it regardless of ignore patterns
-    return true;
+    return matchesAnyPattern(filePath, includePatterns);
   }
 
   // If no include patterns, exclude if matches ignore patterns
@@ -67,11 +70,10 @@ function readDirectory(dirPath: string, treeStructure: Record<string, any> = {})
 
     for (const entry of entries) {
       const fullPath = path.join(dirPath, entry.name);
-      const relativePath = path.relative(process.cwd(), fullPath).replace(/\\/g, "/");
+      const relativePath = path.relative(startPath || ".", fullPath).replace(/\\/g, "/");
 
       if (entry.isDirectory()) {
-        // Always process directory if we have include patterns, otherwise check ignore patterns
-        if (includePatterns.length > 0 || !matchesAnyPattern(relativePath, ignorePatterns)) {
+        if (shouldProcess(relativePath)) {
           const subTree = {};
           treeStructure[relativePath] = subTree;
           readDirectory(fullPath, subTree);
