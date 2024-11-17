@@ -1,6 +1,6 @@
 {
   "name": "print-project",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "A simple CLI tool to print the project tree structure and file contents",
   "main": "dist/index.js",
   "bin": {
