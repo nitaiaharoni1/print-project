@@ -9,18 +9,19 @@ let treeStructure: Record<string, any> = {};
 let treeStructureString: string = "";
 
 const program = new Command();
-program.argument("<startPath>", "Starting directory path").option("--ignore <patterns>", "Comma-separated list of patterns to ignore").option("--include <patterns>", "Comma-separated list of patterns to include").option("--ignore-default", "Disable default ignore patterns").parse(process.argv);
+program.argument("<startPath>", "Starting directory path").option("--ignore <patterns>", "Comma-separated list of patterns to ignore").option("--include <patterns>", "Comma-separated list of patterns to include").option("--remove-default", "Remove default ignore patterns").parse(process.argv);
 
 const startPath: string | undefined = program.args[0] && path.resolve(program.args[0]);
 const options = program.opts();
 const userIgnorePatterns: string[] = options.ignore ? options.ignore.split(",").filter(Boolean).map((pattern: string) => pattern.trim()) : [];
 const includePatterns: string[] = options.include ? options.include.split(",").filter(Boolean).map((pattern: string) => pattern.trim()) : [];
+const shouldAddDefaultIgnorePatterns: boolean = !options.removeDefault;
 
 // Build the final ignore patterns list
 let ignorePatterns: string[] = ["project-print.txt"]; // Always ignore the output file
 
 // If NOT using --ignore-default, add default patterns FIRST
-if (!options.ignoreDefault) {
+if (shouldAddDefaultIgnorePatterns) {
   ignorePatterns = [...defaultIgnorePatterns, ...ignorePatterns];
 }
 
@@ -118,7 +119,7 @@ function main(): void {
   console.log("\nStarting directory read from:", startPath);
   console.log("Include patterns:", includePatterns.length ? includePatterns.join(", ") : "none");
   console.log("Ignore patterns:", ignorePatterns.join(", "));
-  console.log("Using default ignore:", !options.ignoreDefault);
+  console.log("Remove default:", !shouldAddDefaultIgnorePatterns);
   console.log();
 
   readDirectory(startPath, treeStructure);
