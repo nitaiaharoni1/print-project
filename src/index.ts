@@ -74,25 +74,30 @@ function readDirectory(dirPath: string, treeStructure: Record<string, any> = {})
       const relativePath = path.relative(startPath || ".", fullPath).replace(/\\/g, "/");
 
       if (entry.isDirectory()) {
-        if (shouldProcess(relativePath)) {
+        // Don't use shouldProcess() for directories when includes are specified.
+        // Only skip directories if they match an ignore pattern.
+        if (!matchesAnyPattern(relativePath, ignorePatterns)) {
           const subTree = {};
           treeStructure[relativePath] = subTree;
           readDirectory(fullPath, subTree);
 
-          // Remove empty directories
+          // Remove empty directories if no included files end up inside
           if (Object.keys(subTree).length === 0) {
             delete treeStructure[relativePath];
           }
         }
-      } else if (entry.isFile() && shouldProcess(relativePath)) {
-        try {
-          const content = fs.readFileSync(fullPath, "utf8");
-          if (content.length > 0) {
-            treeStructure[relativePath] = {};
-            projectPrint += `${relativePath}:\n${content}\n\n`;
+      } else if (entry.isFile()) {
+        // For files, apply the include and ignore logic
+        if (shouldProcess(relativePath)) {
+          try {
+            const content = fs.readFileSync(fullPath, "utf8");
+            if (content.length > 0) {
+              treeStructure[relativePath] = {};
+              projectPrint += `${relativePath}:\n${content}\n\n`;
+            }
+          } catch (error: any) {
+            console.error(`Error reading file ${relativePath}:`, error.message);
           }
-        } catch (error: any) {
-          console.error(`Error reading file ${relativePath}:`, error.message);
         }
       }
     }
