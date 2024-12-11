@@ -63,12 +63,9 @@ function matchesAnyPattern(filePath: string, patterns: string[]): boolean {
 
     const normalizedPath = filePath.replace(/\\/g, "/").toLowerCase();
     const normalizedPattern = pattern.toLowerCase();
-    console.log(`    📌 Testing pattern: ${normalizedPattern}`);
-
     if (normalizedPattern.includes("/")) {
       const regexPattern = pattern.split("*").map(s => s.replace(/[|\\{}()[\]^$+?.]/g, "\\$&")).join(".*");
       const result = new RegExp(regexPattern, "i").test(normalizedPath);
-      console.log(`    🎯 Path pattern match: ${result}`);
       return result;
     } else {
       const basename = path.basename(normalizedPath);
@@ -77,36 +74,17 @@ function matchesAnyPattern(filePath: string, patterns: string[]): boolean {
         "i",
       );
       const result = simpleRegex.test(basename) || normalizedPath.includes(normalizedPattern);
-      console.log(`    🎯 Simple pattern match: ${result}`);
       return result;
     }
   });
 }
 
 function shouldProcess(filePath: string): boolean {
-  console.log(`\n🤔 Deciding whether to process: ${filePath}`);
-
   if (includePatterns.length > 0) {
     const shouldInclude = matchesAnyPattern(filePath, includePatterns);
-    console.log(`  📥 Include patterns found: ${includePatterns.length}`);
-    console.log(`  ✅ Include decision: ${shouldInclude}`);
-    if (shouldInclude) {
-      console.log(`  ➡️  Including file: ${filePath}`);
-    } else {
-      console.log(`  ⬇️  Skipping file (not in include patterns): ${filePath}`);
-    }
     return shouldInclude;
   }
-
   const shouldIgnore = matchesAnyPattern(filePath, ignorePatterns);
-  console.log(`  🚫 Ignore patterns found: ${ignorePatterns.length}`);
-  console.log(`  ❌ Ignore decision: ${shouldIgnore}`);
-
-  if (shouldIgnore) {
-    console.log(`  ⬇️  Ignoring file: ${filePath}`);
-  } else {
-    console.log(`  ➡️  Processing file: ${filePath}`);
-  }
   return !shouldIgnore;
 }
 
@@ -138,7 +116,6 @@ function readDirectory(dirPath: string, tree: Record<string, any> = {}): void {
           console.log(`    🗂️  Processing directory: ${relativePath}`);
           const subTree: Record<string, any> = {};
           readDirectory(fullPath, subTree);
-
           if (Object.keys(subTree).length > 0) {
             console.log(`    ✅ Directory has included files, adding to tree`);
             tree[relativePath] = subTree;
@@ -172,19 +149,11 @@ function readDirectory(dirPath: string, tree: Record<string, any> = {}): void {
 }
 
 function buildTreeStructure(tree: Record<string, any>, indent: string = ""): void {
-  console.log("\n🌳 Building tree structure...");
-  console.log(`  📊 Current tree size: ${Object.keys(tree).length} entries`);
-  console.log(`  📝 Current string length: ${treeStructureString.length}`);
-
   for (const key in tree) {
-    console.log(`  📌 Processing tree node: ${key}`);
     treeStructureString += indent + key + "\n";
-
     if (typeof tree[key] === "object" && Object.keys(tree[key]).length > 0) {
       console.log(`    🔍 Node has children, recursing...`);
       buildTreeStructure(tree[key], indent + "  ");
-    } else {
-      console.log(`    📍 Leaf node reached`);
     }
   }
 }
