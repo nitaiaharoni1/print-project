@@ -54,13 +54,11 @@ function matchesAnyPattern(filePath: string, patterns: string[]): boolean {
   if (patterns.length === 0) {
     return false;
   }
-
   console.log(`  🔍 Checking patterns for: ${filePath}`);
   return patterns.some(pattern => {
     if (!pattern) {
       return false;
     }
-
     const normalizedPath = filePath.replace(/\\/g, "/").toLowerCase();
     const normalizedPattern = pattern.toLowerCase();
     if (normalizedPattern.includes("/")) {
@@ -90,51 +88,30 @@ function shouldProcess(filePath: string): boolean {
 
 function readDirectory(dirPath: string, tree: Record<string, any> = {}): void {
   console.log(`\n📂 Reading directory: ${dirPath}`);
-  console.log(`  💾 Current tree size: ${Object.keys(tree).length} entries`);
-  console.log(`  📊 Memory usage: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`);
-
   let hasIncludedFiles = false;
 
   try {
     const entries = fs.readdirSync(dirPath, { withFileTypes: true });
-    console.log(`  📊 Found ${entries.length} entries in directory`);
-    console.log(`  📁 Directory items: ${entries.map(e => e.name).join(", ")}`);
-
     for (const entry of entries) {
       const fullPath = path.join(dirPath, entry.name);
       const relativePath = path.relative(startPath || ".", fullPath).replace(/\\/g, "/");
-      console.log(`\n  🔄 Processing entry: ${entry.name}`);
-      console.log(`    📍 Full path: ${fullPath}`);
-      console.log(`    🔗 Relative path: ${relativePath}`);
-
       const isIgnored = matchesAnyPattern(relativePath, ignorePatterns);
-      console.log(`    🚫 Is ignored: ${isIgnored}`);
-
       if (entry.isDirectory()) {
-        console.log(`    📁 Entry is a directory`);
         if (!isIgnored) {
-          console.log(`    🗂️  Processing directory: ${relativePath}`);
           const subTree: Record<string, any> = {};
           readDirectory(fullPath, subTree);
           if (Object.keys(subTree).length > 0) {
-            console.log(`    ✅ Directory has included files, adding to tree`);
             tree[relativePath] = subTree;
             hasIncludedFiles = true;
-          } else {
-            console.log(`    ⚠️  Directory has no included files, skipping`);
           }
         }
       } else if (entry.isFile()) {
-        console.log(`    📄 Entry is a file`);
         if (!isIgnored && shouldProcess(relativePath)) {
           try {
-            console.log(`    📖 Reading file content...`);
             const content = fs.readFileSync(fullPath, "utf8");
-            console.log(`    📊 File size: ${content.length} bytes`);
             tree[relativePath] = {};
             projectPrint += `${relativePath}:\n${content}\n\n`;
             hasIncludedFiles = true;
-            console.log(`    ✨ Successfully processed file`);
           } catch (error: any) {
             console.error(`    ❌ Error reading file ${relativePath}:`, error.message);
             console.error(`    📑 Error stack:`, error.stack);
