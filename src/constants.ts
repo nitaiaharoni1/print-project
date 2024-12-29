@@ -34,6 +34,7 @@ export const defaultIgnorePatterns: string[] = [
   ".woff2",
   ".eot",
   ".sfnt",
+  ".xml",
   ".fnt",
   ".pfa",
   ".pfb",
