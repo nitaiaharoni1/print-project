@@ -27,6 +27,7 @@ export const defaultIgnorePatterns: string[] = [
   ".heif",
   ".heic",
   ".jfif",
+  ".ttf",
   ".jp2",
   ".jpe",
   ".jif",
