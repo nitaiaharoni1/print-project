@@ -9,30 +9,20 @@ let treeStructure: Record<string, any> = {};
 let treeStructureString: string = "";
 
 console.log("\n🔍 Starting program execution");
-console.log("⏰ Time:", new Date().toISOString());
 
 // Initialize command line interface
 const program = new Command();
-console.log("⚙️  Setting up command line interface...");
 program.argument("<startPath>", "Starting directory path").option("--ignore <patterns>", "Comma-separated list of patterns to ignore").option("--include <patterns>", "Comma-separated list of patterns to include").option("--remove-default", "Remove default ignore patterns").parse(process.argv);
-
-console.log("🚀 Initializing file printer...");
-console.log("📊 Memory usage:", process.memoryUsage().heapUsed / 1024 / 1024, "MB");
-
 const startPath: string | undefined = program.args[0] && path.resolve(program.args[0]);
 const options = program.opts();
-
-console.log("🔧 Parsing command line options...");
 const userIgnorePatterns: string[] = options.ignore
   ? options.ignore.split(",").filter(Boolean).map((pattern: string) => {
-    console.log(`  📎 Processing ignore pattern: ${pattern.trim()}`);
     return pattern.trim();
   })
   : [];
 
 const includePatterns: string[] = options.include
   ? options.include.split(",").filter(Boolean).map((pattern: string) => {
-    console.log(`  📎 Processing include pattern: ${pattern.trim()}`);
     return pattern.trim();
   })
   : [];
@@ -43,18 +33,13 @@ console.log("🎯 Default patterns:", shouldAddDefaultIgnorePatterns ? "enabled"
 // Build ignore patterns list
 let ignorePatterns: string[] = ["project-print.txt"];
 if (shouldAddDefaultIgnorePatterns) {
-  console.log("📋 Adding default ignore patterns...");
-  console.log(`  📑 Default patterns count: ${defaultIgnorePatterns.length}`);
   ignorePatterns = [...defaultIgnorePatterns, ...ignorePatterns];
 }
 ignorePatterns = [...ignorePatterns, ...userIgnorePatterns];
-console.log(`📝 Total ignore patterns: ${ignorePatterns.length}`);
-
 function matchesAnyPattern(filePath: string, patterns: string[]): boolean {
   if (patterns.length === 0) {
     return false;
   }
-  console.log(`  🔍 Checking patterns for: ${filePath}`);
   return patterns.some(pattern => {
     if (!pattern) {
       return false;
@@ -87,7 +72,6 @@ function shouldProcess(filePath: string): boolean {
 }
 
 function readDirectory(dirPath: string, tree: Record<string, any> = {}): void {
-  console.log(`\n📂 Reading directory: ${dirPath}`);
   let hasIncludedFiles = false;
 
   try {
@@ -129,7 +113,6 @@ function buildTreeStructure(tree: Record<string, any>, indent: string = ""): voi
   for (const key in tree) {
     treeStructureString += indent + key + "\n";
     if (typeof tree[key] === "object" && Object.keys(tree[key]).length > 0) {
-      console.log(`    🔍 Node has children, recursing...`);
       buildTreeStructure(tree[key], indent + "  ");
     }
   }
@@ -137,43 +120,23 @@ function buildTreeStructure(tree: Record<string, any>, indent: string = ""): voi
 
 function main(): void {
   console.log("\n🎬 Starting main execution...");
-  console.log(`📊 Initial memory usage: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`);
-
   if (!startPath) {
     console.error("❌ Starting directory path is required.");
     process.exit(1);
   }
-
   console.log("\n📌 Configuration:");
   console.log(`📂 Start path: ${startPath}`);
   console.log(`📥 Include patterns: ${includePatterns.length ? includePatterns.join(", ") : "none"}`);
   console.log(`🚫 Ignore patterns: ${ignorePatterns.join(", ")}`);
   console.log(`🔄 Remove default: ${!shouldAddDefaultIgnorePatterns}`);
-
   console.log("\n🏁 Starting directory traversal...");
-  const startTime = process.hrtime();
-
   readDirectory(startPath, treeStructure);
-
   console.log("\n🏗️  Building final output...");
   buildTreeStructure(treeStructure);
-
   const finalContents = `File structure:\n${treeStructureString}\n\nProject print:\n${projectPrint}`;
-
   console.log("\n💾 Writing output file...");
   fs.writeFileSync("project-print.txt", finalContents);
-
-  const endTime = process.hrtime(startTime);
-  const executionTime = (endTime[0] + endTime[1] / 1e9).toFixed(2);
-  const fileSizeKB = (projectPrint.length / 1024).toFixed(2);
-
   console.log("\n✨ Process completed!");
-  console.log(`⏱️  Execution time: ${executionTime} seconds`);
-  console.log(`📊 Final memory usage: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`);
-  console.log(`📝 Project print size: ${fileSizeKB}KB`);
-  console.log(`📄 Tree structure size: ${treeStructureString.length} characters`);
-  console.log(`💾 Output written to: project-print.txt`);
-  console.log(`\n🏁 Program finished at: ${new Date().toISOString()}\n`);
 }
 
 main();

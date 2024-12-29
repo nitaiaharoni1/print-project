@@ -9,7 +9,7 @@ export const defaultIgnorePatterns: string[] = [
   "scripts",
   ".serverless",
   ".idea",
-  ".git",
+  ".git/",
   ".DS_Store",
   ".husky",
   "package-lock.json",
